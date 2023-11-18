@@ -18,7 +18,7 @@ import (
 // from an ICS20 FungibleTokenPacketData as well as the original sender bech32
 // address from the packet data. This function fails if:
 //   - the packet data is not FungibleTokenPacketData
-//   - sender address is invalid
+//   - sender return nil if sender is from non cosmos chain
 //   - recipient address is invalid
 func GetTransferSenderRecipient(packet channeltypes.Packet) (
 	sender, recipient sdk.AccAddress,
@@ -33,10 +33,7 @@ func GetTransferSenderRecipient(packet channeltypes.Packet) (
 
 	// validate the sender bech32 address from the counterparty chain
 	// and change the bech32 human readable prefix (HRP) of the sender to `evmos`
-	sender, err = utils.GetEvmosAddressFromBech32(data.Sender)
-	if err != nil {
-		return nil, nil, "", "", errorsmod.Wrap(err, "invalid sender")
-	}
+	sender, _ = utils.GetEvmosAddressFromBech32(data.Sender)
 
 	// validate the recipient bech32 address from the counterparty chain
 	// and change the bech32 human readable prefix (HRP) of the recipient to `evmos`
