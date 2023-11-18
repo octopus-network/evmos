@@ -62,17 +62,19 @@ func (k Keeper) OnRecvPacket(
 
 	claimsParams := k.claimsKeeper.GetParams(ctx)
 
-	// if sender == recipient, and is not from an EVM Channel recovery was executed
-	if sender.Equals(recipient) && !claimsParams.IsEVMChannel(packet.DestinationChannel) {
-		// Continue to the next IBC middleware by returning the original ACK.
-		return ack
-	}
+	if sender != nil {
+		// if sender == recipient, and is not from an EVM Channel recovery was executed
+		if sender.Equals(recipient) && !claimsParams.IsEVMChannel(packet.DestinationChannel) {
+			// Continue to the next IBC middleware by returning the original ACK.
+			return ack
+		}
 
-	senderAcc := k.accountKeeper.GetAccount(ctx, sender)
+		senderAcc := k.accountKeeper.GetAccount(ctx, sender)
 
-	// return acknoledgement without conversion if sender is a module account
-	if types.IsModuleAccount(senderAcc) {
-		return ack
+		// return acknoledgement without conversion if sender is a module account
+		if types.IsModuleAccount(senderAcc) {
+			return ack
+		}
 	}
 
 	// parse the transferred denom
